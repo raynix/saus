@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+{% block title %}Manage Links{% endblock %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{% block content %}
+  <div class='row row_surl'>
+    <form action="/_all/manage" method="GET">
+      {{ form }}
+      <input type="submit" value="Search" class="btn btn-primary"/>
+    </form>
+  </div>
+  <div class='row row_surl font-weight-bold'>
+    <div class='col-md-2'>Keyword</div>
+    <div class='col-md-8'>URL</div>
+    <div class='col-md-2'>Hits</div>
+  </div>
+  {% for surl in surls %}
+  <div class='row row_surl'>
+    <div class='col-md-2'><a href="/{{ surl.id }}/edit">{{ surl.keyword }}</a></div>
+    <div class='col-md-8'><span data-toggle="tooltip" data-placement="top" title="{{ surl.url }}">{{ surl.url| truncatechars:75 }}</span></div>
+    <div class='col-md-2'>{{ surl.hits }}</div>
+  </div>
+  {% endfor %}
+  <div class='row row_surl'>
+    {% bootstrap_pagination surls extra=request.GET.urlencode %}
+  </div>
+{% endblock %}

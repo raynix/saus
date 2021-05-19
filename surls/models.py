@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.core.cache import cache
+from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
 class Domain(models.Model):
@@ -69,7 +70,11 @@ class Surl(models.Model):
         else:
             if old_link:
                 return old_link
-            next_id = cls.objects.latest('id').id + 1
+            next_id = 5000
+            try:
+              mext_id = cls.objects.latest('id').id + 1
+            except ObjectDoesNotExist:
+              pass
             keyword = cls.baseN( next_id )
         suffix_count = 0
         suffix = ''
@@ -101,3 +106,26 @@ class SurlAdmin(admin.ModelAdmin):
     list_display = ( 'keyword', 'domain', 'url', 'hits' )
     list_filter = ( 'domain__name', )
     search_fields = ( 'keyword', 'url' )
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.PROTECT)
+    domain = models.ForeignKey(Domain, on_delete=models.PROTECT)
+    token = models.CharField(max_length=200, db_index=True)
+
+    def username(self):
+        return self.user.username
+
+    def domainname(self):
+        return self.domain.name
+    @classmethod
+    def authenticate(cls, request_token):
+        if len(request_token) == 0:
+            return None
+        pf = cls.objects.filter(token=request_token).first()
+        if pf:
+            return pf
+        else:
+            return None
+
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ( 'username', 'domainname', 'token' )

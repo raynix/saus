@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+{% block title %}Edit A Link{% endblock %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        Keyword: {{ surl.keyword }}
+      </div>
+      <div class="card-body">
+        <p class="card-text">URL Title: {{ surl.title }}</p>
+        <p class="card-text">Hits: {{ surl.hits }}</p>
+        <form action="" method="POST">
+          {% csrf_token %}
+          {% bootstrap_form_errors form %}
+          {% bootstrap_form form %}
+          <input type="submit" value="Update" class="btn btn-primary"/>
+          <a class="btn btn-secondary" href="/_all/manage">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <ul class="list-group">
+      <li class="list-group-item list-group-item-info">Change Logs</li>
+      {% for log in logs %}
+      <li class="list-group-item"><span class="text-danger">{{ log.revision.user }}</span> on <span class="text-warning">{{ log.revision.date_created }}</span> -- {{ log.revision.comment }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

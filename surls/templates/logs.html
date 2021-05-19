@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+{% block title %}Change Logs{% endblock %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{% block content %}
+  <div class='row row_log font-weight-bold'>
+    <div class='col-md-1'>User</div>
+    <div class='col-md-4'>Created On</div>
+    <div class='col-md-2'>Keyword</div>
+    <div class='col-md-5'>Comment</div>
+  </div>
+  {% for log in logs %}
+  <div class='row row_log'>
+    <div class='col-md-1'>{{ log.revision.user }}</div>
+    <div class='col-md-4'>{{ log.revision.date_created }}</div>
+    <div class='col-md-2'><a href="/{{ log.object_id}}/edit">{{ log.field_dict.keyword }}</a></div>
+    <div class='col-md-5'>{{ log.revision.comment }}</div>
+  </div>
+  {% endfor %}
+  <div class='row row_log'>
+    {% bootstrap_pagination logs extra=request.GET.urlencode %}
+  </div>
+{% endblock %}

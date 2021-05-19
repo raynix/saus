@@ -14,9 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
+from django.conf.urls import url, include
+
+from surls import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('surls.urls')),
+    path('', views.shorten, name='shorten'), 
+    url(r'^(?P<keyword>[0-9a-zA-Z_]+)/?', include('surls.urls')),
 ]

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+{% block title %}Shorten A URL{% endblock %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        Shorten a URL
+      </div>
+      <div class="card-body">
+        <p class="card-text">Hint text</p>
+        <form action="" method="POST">
+          {% csrf_token %}
+          {% bootstrap_form_errors form %}
+          {% bootstrap_form form %}
+          <input type="submit" value="Make it short!" class="btn btn-primary"/>
+          <a class="btn btn-secondary" href="#">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

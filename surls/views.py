@@ -17,7 +17,6 @@ def index(request):
 
 def shorten(request):
   domain_name = request.META['HTTP_HOST']
-  print(domain_name)
   domain = Domain.objects.get(name=domain_name)
   if not domain:
     return HttpResponse(status=404)
@@ -36,8 +35,7 @@ def shorten(request):
         messages.success(request, f"New short URL <a href='http://{domain_name}/{surl.keyword}'> http://{domain_name}/{surl.keyword} </a> created for {test_url}")
         return redirect('/')
   else:
-    form = SurlForm()
-    return render(request, 'new.html', {'form': form})
+    return render(request, 'new.html', {'form': SurlForm()})
 
 def launch(request, keyword):
   domain_name = request.META['HTTP_HOST']

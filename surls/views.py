@@ -33,7 +33,7 @@ def shorten(request):
           domain=domain,
           title='N/a'
         )
-        messages.success(request, f"New short URL created.")
+        messages.success(request, f"New short URL <a href='http://{domain_name}/{surl.keyword}'> http://{domain_name}/{surl.keyword} </a> created for {test_url}")
         return redirect('/')
   else:
     form = SurlForm()

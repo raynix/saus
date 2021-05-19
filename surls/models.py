@@ -72,7 +72,7 @@ class Surl(models.Model):
                 return old_link
             next_id = 5000
             try:
-              mext_id = cls.objects.latest('id').id + 1
+              next_id = cls.objects.latest('id').id + 1
             except ObjectDoesNotExist:
               pass
             keyword = cls.baseN( next_id )

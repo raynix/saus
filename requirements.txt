@@ -1,0 +1,7 @@
+Django==3.2.3
+django-bootstrap4==3.0.1
+django-redis==4.12.1
+requests==2.22.0
+gunicorn
+ujson
+mysqlclient

@@ -18,24 +18,28 @@ def index(request):
 def shorten(request):
   domain_name = request.META['HTTP_HOST']
   domain = Domain.objects.get(name=domain_name)
+  form = SurlForm()
   if not domain:
-    return HttpResponse(status=404)
+    return HttpResponse("Domain not supported", status=404)
 
   if request.method == 'POST':
     form = SurlForm(request.POST)
     if form.is_valid():
-      test_url = form.cleaned_data['url']
-      test_response = requests.get(test_url)
-      if test_response.ok:
-        surl = Surl.safe_create(
-          url=test_url,
-          domain=domain,
-          title='N/a'
-        )
-        messages.success(request, f"New short URL <a href='http://{domain_name}/{surl.keyword}'> http://{domain_name}/{surl.keyword} </a> created for {test_url}")
-        return redirect('/')
-  else:
-    return render(request, 'new.html', {'form': SurlForm()})
+      try:
+        test_url = form.cleaned_data['url']
+        test_response = requests.get(test_url)
+        if test_response.ok:
+          surl = Surl.safe_create(
+            url=test_url,
+            domain=domain,
+            title='N/a',
+            keyword=form.cleaned_data['slug']
+          )
+          messages.success(request, f"New short URL <a href='http://{domain_name}/{surl.keyword}'> http://{domain_name}/{surl.keyword} </a> created for {test_url}")
+          return redirect('/')
+      except Exception:
+        return HttpResponse("Error processing the URL", status=400)
+  return render(request, 'new.html', {'form': form})
 
 def launch(request, keyword):
   domain_name = request.META['HTTP_HOST']

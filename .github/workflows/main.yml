@@ -29,4 +29,4 @@ jobs:
       - name: Docker push
         run: |
           echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-          docker push ghcr.io/raynix/saus
+          docker push ghcr.io/raynix/saus:v0.$GITHUB_RUN_NUMBER

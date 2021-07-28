@@ -5,8 +5,10 @@ name: CI
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
-  create:
-    ref_type: tag
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -20,20 +22,11 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: test tag
+      - name: Docker build saus-gunicorn
         run: |
-          ref=${{ github.ref }}
-          export build_version=${ref#refs/tags/}
+          docker build -t ghcr.io/raynix/saus:dev .
 
-      - name: verify tag
+      - name: Docker push
         run: |
-          echo $build_version
-      #
-      # - name: Docker build saus-gunicorn
-      #   run: |
-      #     docker build -t ghcr.io/raynix/saus:v0.$GITHUB_RUN_NUMBER .
-      #
-      # - name: Docker push
-      #   run: |
-      #     echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-      #     docker push ghcr.io/raynix/saus:v0.$GITHUB_RUN_NUMBER
+          echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+          docker push ghcr.io/raynix/saus:dev

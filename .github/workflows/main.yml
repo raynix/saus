@@ -23,7 +23,7 @@ jobs:
       - name: prepare the tag
         run: |
           ref=${{ github.ref }}
-          echo "::set-env name=build_version::${ref#refs/tags/}"
+          echo "build_version=${ref#refs/tags/}" >> $GITHUB_ENV
 
       - name: Docker build saus-gunicorn
         run: |

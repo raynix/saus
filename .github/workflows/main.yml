@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Release with a tag
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -20,17 +20,16 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: test tag
+      - name: prepare the tag
         run: |
           ref=${{ github.ref }}
-          export build_version=${ref#refs/tags/}
-          echo $build_version
-      #
-      # - name: Docker build saus-gunicorn
-      #   run: |
-      #     docker build -t ghcr.io/raynix/saus:v0.$GITHUB_RUN_NUMBER .
-      #
-      # - name: Docker push
-      #   run: |
-      #     echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-      #     docker push ghcr.io/raynix/saus:v0.$GITHUB_RUN_NUMBER
+          echo "::set-env name=build_version::${ref#refs/tags/}"
+
+      - name: Docker build saus-gunicorn
+        run: |
+          docker build -t ghcr.io/raynix/saus:$build_version .
+
+      - name: Docker push
+        run: |
+          echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+          docker push ghcr.io/raynix/saus:$build_version

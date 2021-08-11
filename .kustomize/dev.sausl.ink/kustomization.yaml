@@ -16,3 +16,6 @@ configMapGenerator:
 commonAnnotations:
   domain: dev.sausl.ink
   cert: saus-dev-cert
+
+patchesStrategicMerge:
+  - patch.yaml

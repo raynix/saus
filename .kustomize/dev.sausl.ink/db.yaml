@@ -38,7 +38,7 @@ spec:
             - name: MARIADB_PASSWORD
               value: saus
             - name: MARIADB_RANDOM_ROOT_PASSWORD
-              value: yes
+              value: "yes"
           volumeMounts:
             - name: data-volume
               mountPath: /var/lib/mysql

@@ -1,0 +1,13 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: saus-vs
+spec:
+  gateways:
+  - saus-gateway
+  hosts:
+  - $(DOMAIN)
+  http:
+  - route:
+    - destination:
+        host: saus

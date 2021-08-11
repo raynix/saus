@@ -1,0 +1,15 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: django
+  namespace: saus-dev
+spec:
+  encryptedData:
+    SECRET_KEY: AgDFgr2fPeLBxGgGiRwR7N+w5RHuCmP8OQu/loDWQoAwJZIriPH1exNyL5N8QsZhs81pCfiOJhU7dYsHrJsi5arNqEd1rRjx9SJp3ssbOJrhX01O+nYBJ4IGK7t5cQDe5vV44PxaJclM/EqfrZJG9+dGvtPBEZzUQd6TkX96QxF+8jXzIRU+a8e0AP2aNldCgxMH8LtUQH6v/ixoQa9q8CQexxR+GWnGyVDxzZ2OEvbylxEwVlDfC6w4+R7BRPC+jdlLCmVr+3U3NgVBhUnbCgrCgVD8fWQffMoFH//w/rODw0p1c2/TUfXR43ymyY6T0k35DmViGtlNVbd1RAiOZBcfbC4+HmExBOpTeVnazENDxs+8qWyoThWBR69namQFCmMG+N+w3LpnT9hH13LHdKvKCikk88FMSEi67nDZLbgTxLMfgenzuyJibpqiguO0Vz6RvuWLqQDsYVZLV5o21augqceiKeQWoHSCYTzV0hjS2L6wvlRXb20UhFqSmQd0jlIgSvt9py4yS7LMfHU5HYFBVhxpeMj9LU8pc6nRUzdGnUg22wXAiccISbR2pqXLmtx9k4kF8jz4EYsyBCHYj/NoZXktuH0KAgm9aGaurMHagcwC3PDQuUj2TIEljWES9E+Oh+RSuwY1ScmXUm+vV/SFOqIIEt6ZCFV/W8mhYKxpQjVPxJ5m1jS7jGpZtr+Synex1628Yt3evn011jng8BWNrph/u1FOJZWvUaanqnQheDd5JxJxbhgn4tk8
+  template:
+    metadata:
+      creationTimestamp: null
+      name: django
+      namespace: saus-dev
+status: {}

@@ -24,9 +24,16 @@ spec:
         - name: saus-gunicorn-job
           image: ghcr.io/raynix/saus:v0.2
           command:
-            - django-admin
-          args:
-            - migrate
+            - /bin/bash
+            - -c
+            - |
+              until curl -fsI http://localhost:15021/healthz/ready; do
+                echo 'Waiting for Sidecar...'
+                sleep 1
+              done
+              django-admin migrate
+              curl -fsI -X POST http://localhost:15020/quitquitquit
+
           volumeMounts:
             - name: saus-config-volume
               mountPath: /var/www/saus/saus/settings.py
@@ -39,9 +46,6 @@ spec:
               cpu: 100m
               memory: 200Mi
       volumes:
-        - name: nginx-config-volume
-          configMap:
-            name: saus-nginx
         - name: saus-config-volume
           configMap:
             name: saus-django

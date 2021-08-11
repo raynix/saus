@@ -31,7 +31,7 @@ spec:
                 echo 'Waiting for Sidecar...'
                 sleep 1
               done
-              django-admin migrate
+              python3 manage.py migrate
               curl -fsI -X POST http://localhost:15020/quitquitquit
 
           volumeMounts:

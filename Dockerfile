@@ -1,7 +1,7 @@
 FROM ubuntu:focal
 
 RUN apt-get update -y && \
-  apt-get install -qqy python3 python3-pip python3-dev libmariadb-dev
+  apt-get install -qqy python3 python3-pip python3-dev libmariadb-dev curl
 
 EXPOSE 8000
 WORKDIR /var/www/saus

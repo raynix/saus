@@ -39,7 +39,7 @@ spec:
               value: saus
           volumeMounts:
             - name: data-volume
-              path: /var/lib/mysql
+              mountPath: /var/lib/mysql
       volumes:
         - name: data-volume
           emptyDir: {}

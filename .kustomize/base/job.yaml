@@ -19,6 +19,7 @@ spec:
                 operator: In
                 values:
                 - amd64
+      restartPolicy: Never
       containers:
         - name: saus-gunicorn-job
           image: ghcr.io/raynix/saus:v0.2

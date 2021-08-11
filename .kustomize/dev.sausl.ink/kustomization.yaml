@@ -5,6 +5,7 @@ bases:
   - ../base
 
 resources:
+  - db.yaml
   - ns.yaml
   - ss.yaml
 

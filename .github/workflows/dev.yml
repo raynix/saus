@@ -37,7 +37,7 @@ jobs:
 
       - name: Update deployment version
         run: |
-          sed -i -E "s|(image: ghcr.io/raynix/saus:).*|\1$build_number|g"
+          sed -i -E "s|(image: ghcr.io/raynix/saus:).*|\1$build_number|g" .kustomize/dev.sausl.ink/patch.yaml
 
       - name: Auto commit & push changes
         run: |

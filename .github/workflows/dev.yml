@@ -22,11 +22,26 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      - name: build number
+        run: |
+          echo "build_number=dev-${GITHUB_RUN_ID}" >> $GITHUB_ENV
+
       - name: Docker build saus-gunicorn
         run: |
-          docker build -t ghcr.io/raynix/saus:dev .
+          docker build -t ghcr.io/raynix/saus:$build_number .
 
       - name: Docker push
         run: |
           echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-          docker push ghcr.io/raynix/saus:dev
+          docker push ghcr.io/raynix/saus:$build_number
+
+      - name: Update deployment version
+        run: |
+          sed -i -E "s|(image: ghcr.io/raynix/saus:).*|\1$build_number|g"
+
+      - name: Auto commit & push changes
+        run: |
+          git config --global user.name 'raynix Bot'
+          git config --global user.email 'raynix@gmail.com'
+          git commit -am "Automated commit"
+          git push

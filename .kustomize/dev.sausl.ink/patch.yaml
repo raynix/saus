@@ -9,11 +9,9 @@ spec:
       initContainers:
         - name: saus-gunicorn-init
           image: ghcr.io/raynix/saus:dev
-          imagePullPolicy: Always
       containers:
         - name: saus-gunicorn
           image: ghcr.io/raynix/saus:dev
-          imagePullPolicy: Always
 
 ---
 apiVersion: batch/v1
@@ -26,4 +24,3 @@ spec:
       containers:
         - name: saus-gunicorn-job
           image: ghcr.io/raynix/saus:dev
-          imagePullPolicy: Always

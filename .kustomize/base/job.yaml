@@ -32,6 +32,7 @@ spec:
                 sleep 1
               done
               python3 manage.py migrate
+              python3 manage.py loaddata
               curl -fsI -X POST http://localhost:15020/quitquitquit
 
           volumeMounts:

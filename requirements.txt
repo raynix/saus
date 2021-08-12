@@ -5,3 +5,4 @@ requests==2.22.0
 gunicorn
 ujson
 mysqlclient
+PyYAML==5.4.1

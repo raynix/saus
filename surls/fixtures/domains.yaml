@@ -1,8 +1,8 @@
-- model: saus.Domain
+- model: surls.Domain
   pk: 1
   fields:
     name: localhost
-- model: saus.Domain
+- model: surls.Domain
   pk: 2
   fields:
     name: dev.sausl.ink

@@ -23,7 +23,12 @@ jobs:
       - name: prepare the tag
         run: |
           ref=${{ github.ref }}
-          echo "build_version=${ref#refs/tags/}" >> $GITHUB_ENV
+          if [[ $ref =~ refs\/tags\/ ]]; then
+            echo "build_version=${ref#refs/tags/}" >> $GITHUB_ENV
+          else
+            echo "No tag found. Skipping."
+            exit 1
+          fi
 
       - name: Docker build saus-gunicorn
         run: |

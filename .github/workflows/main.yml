@@ -48,4 +48,4 @@ jobs:
           git config --global user.name 'raynix Bot'
           git config --global user.email 'raynix@gmail.com'
           git commit -am "Automated commit"
-          git push
+          git push origin HEAD:main

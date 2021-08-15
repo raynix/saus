@@ -9,11 +9,6 @@ resources:
   - ns.yaml
   - ss.yaml
 
-configMapGenerator:
-  - name: saus-django
-    files:
-      - settings.py
-
 commonAnnotations:
   domain: dev.sausl.ink
   cert: saus-dev-cert

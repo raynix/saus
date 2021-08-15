@@ -39,14 +39,11 @@ spec:
             - name: saus-config-volume
               mountPath: /var/www/saus/saus/settings.py
               subPath: settings.py
-          envFrom:
-            - secretRef:
-                name: django
           resources:
             requests:
               cpu: 100m
               memory: 200Mi
       volumes:
         - name: saus-config-volume
-          configMap:
-            name: saus-django
+          secret:
+            secretName: django-settings

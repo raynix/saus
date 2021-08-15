@@ -36,9 +36,6 @@ spec:
               subPath: settings.py
             - name: static-volume
               mountPath: /var/www/saus/static
-          envFrom:
-            - secretRef:
-                name: django
           resources:
             requests:
               cpu: 100m
@@ -67,9 +64,6 @@ spec:
               subPath: settings.py
             - name: static-volume
               mountPath: /var/www/saus/static
-          envFrom:
-            - secretRef:
-                name: django
           resources:
             requests:
               cpu: 100m
@@ -79,7 +73,7 @@ spec:
           configMap:
             name: saus-nginx
         - name: saus-config-volume
-          configMap:
-            name: saus-django
+          secret:
+            secretName: django-settings
         - name: static-volume
           emptyDir: {}

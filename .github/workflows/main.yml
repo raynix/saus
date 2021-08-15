@@ -5,8 +5,8 @@ name: Release with a tag
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
-  create:
-    ref_type: tag
+  push:
+    branches: [ main ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -38,3 +38,14 @@ jobs:
         run: |
           echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
           docker push ghcr.io/raynix/saus:$build_version
+
+      - name: Update deployment version
+        run: |
+          sed -i -E "s|(image: ghcr.io/raynix/saus:).*|\1$build_version|g" .kustomize/sausl.ink/patch.yaml
+
+      - name: Auto commit & push changes
+        run: |
+          git config --global user.name 'raynix Bot'
+          git config --global user.email 'raynix@gmail.com'
+          git commit -am "Automated commit"
+          git push

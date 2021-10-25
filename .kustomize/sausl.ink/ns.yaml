@@ -3,4 +3,5 @@ kind: Namespace
 metadata:
   name: saus
   labels:
-    istio-injection: enabled
+    istio.io/rev: canary
+

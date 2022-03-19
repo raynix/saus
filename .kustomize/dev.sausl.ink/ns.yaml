@@ -3,4 +3,4 @@ kind: Namespace
 metadata:
   name: saus-dev
   labels:
-    istio.io/rev: canary
+    istio.io/rev: magpie

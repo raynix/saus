@@ -9,6 +9,8 @@ spec:
       name: saus
       labels:
         app: saus
+      annotations:
+        sidecar.istio.io/inject: false
     spec:
       affinity:
         nodeAffinity:
@@ -27,14 +29,8 @@ spec:
             - /bin/bash
             - -c
             - |
-              until curl -fsI http://localhost:15021/healthz/ready; do
-                echo 'Waiting for Sidecar...'
-                sleep 1
-              done
               python3 manage.py migrate
               python3 manage.py loaddata surls/fixtures/*.yaml
-              curl -fsI -X POST http://localhost:15020/quitquitquit
-
           volumeMounts:
             - name: saus-config-volume
               mountPath: /var/www/saus/saus/settings.py

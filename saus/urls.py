@@ -15,12 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.conf.urls import url, include
+from django.urls import include, re_path
 
 from surls import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.shorten, name='shorten'), 
-    url(r'^(?P<keyword>[0-9a-zA-Z_]+)/?', include('surls.urls')),
+    path('', views.shorten, name='shorten'),
+    re_path(r'^(?P<keyword>[0-9a-zA-Z_]+)/?', include('surls.urls')),
 ]

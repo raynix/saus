@@ -8,10 +8,10 @@ spec:
     spec:
       initContainers:
         - name: saus-gunicorn-init
-          image: ghcr.io/raynix/saus:dev-4524323440
+          image: ghcr.io/raynix/saus:dev-4524369116
       containers:
         - name: saus-gunicorn
-          image: ghcr.io/raynix/saus:dev-4524323440
+          image: ghcr.io/raynix/saus:dev-4524369116
 
 ---
 apiVersion: batch/v1
@@ -23,4 +23,4 @@ spec:
     spec:
       containers:
         - name: saus-gunicorn-job
-          image: ghcr.io/raynix/saus:dev-4524323440
+          image: ghcr.io/raynix/saus:dev-4524369116

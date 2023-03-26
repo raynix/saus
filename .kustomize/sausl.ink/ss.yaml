@@ -12,3 +12,4 @@ spec:
       creationTimestamp: null
       name: django-settings
       namespace: saus
+    type: Opaque

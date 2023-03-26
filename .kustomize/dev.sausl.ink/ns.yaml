@@ -3,4 +3,4 @@ kind: Namespace
 metadata:
   name: saus-dev
   labels:
-    istio-injection: enabled
+    istio.io/rev: magpie

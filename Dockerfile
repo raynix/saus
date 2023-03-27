@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 RUN apt-get update -y && \
   apt-get install -qqy python3 python3-pip python3-dev libmariadb-dev curl

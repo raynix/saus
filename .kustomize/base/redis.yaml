@@ -24,7 +24,7 @@ spec:
                 - amd64
       containers:
         - name: redis
-          image: redis:4.0
+          image: redis:7.0-alpine
           resources:
             requests:
               memory: 200Mi

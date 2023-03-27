@@ -6,3 +6,4 @@ gunicorn
 ujson
 mysqlclient
 PyYAML==5.4.1
+tzdata

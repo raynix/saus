@@ -1,0 +1,15 @@
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: saus
+spec:
+  parentRefs:
+    - kind: Gateway
+      name: kubernetes-gateway
+      namespace: istio-system
+  hostnames:
+    - $(DOMAIN)
+  rules:
+    - backendRefs:
+        - name: saus
+          port: 8080

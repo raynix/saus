@@ -22,3 +22,5 @@ varReference:
     kind: Gateway
   - path: spec/servers/tls/credentialName
     kind: Gateway
+  - path: spec/hostnames
+    kind: HTTPRoute

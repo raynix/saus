@@ -1,10 +1,11 @@
-Django==4.1.7
+Django==5.2.4
 django-bootstrap4==3.0.1
-django-redis==4.12.1
-requests==2.22.0
+django-redis==6.0.0
+requests==2.32.4
 gunicorn
 ujson
 mysqlclient
-PyYAML==5.4.1
+PyYAML==6.0.2
 tzdata
 qrcode
+urllib3

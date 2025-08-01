@@ -1,18 +1,18 @@
-version: "3.4"
-
 services:
   mariadb:
-    container_name: mariadb
-    image: mariadb:10.11
+    container_name: saus-mariadb
+    image: mariadb:11
     ports:
       - 3306:3306
     environment:
       MARIADB_ROOT_PASSWORD: pass
+    volumes:
+      - mariadb_data:/var/lib/mysql
   redis:
-    container_name: redis
-    image: redis:7.0-alpine
+    container_name: saus-redis
+    image: redis:7-alpine
     ports:
       - 6379:6379
 
 volumes:
-  mongo-volume: {}
+  mariadb_data: {}

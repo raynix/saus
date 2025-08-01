@@ -1,12 +1,9 @@
 from django.db import models
-
 import hashlib
-
-from django.db import models
 from django.contrib import admin
 from django.contrib.auth.models import User
-from django.dispatch import receiver
-from django.db.models.signals import post_save
+from typing import Optional
+
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
@@ -14,11 +11,11 @@ from django.conf import settings
 class Domain(models.Model):
     name = models.CharField(max_length=200, db_index=True)
 
-    def __str__(self):
-        return self.name
+    def __str__(self) -> str:
+        return str(self.name)
 
-    def number_of_surls(self):
-        return Surl.objects.filter(domain__name=self.name).count()
+    def number_of_surls(self) -> int:
+        return Surl.objects.filter(domain__name=self.name).count()  # type: ignore
 
 class DomainAdmin(admin.ModelAdmin):
     list_display = ( 'name', 'number_of_surls' )
@@ -28,41 +25,48 @@ class Surl(models.Model):
     url = models.CharField(max_length=1000)
     title = models.CharField(max_length=1000)
     domain = models.ForeignKey(Domain, on_delete=models.PROTECT)
-    hits = models.BigIntegerField(default=0)
+    hits = models.BigIntegerField(default=0)  # type: ignore
     url_hash = models.CharField(max_length=64, db_index=True, default='')
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.domain.name + '/' + self.keyword + '  --->  ' + self.url
 
-    def get_absolute_url(self):
-        return self.url
+    def get_absolute_url(self) -> str:
+        return str(self.url)
 
     def save(self, *args, **kwargs):
-        self.url_hash = hashlib.sha256(self.url.encode('utf-8')).hexdigest()
+        # Ensure url is a string before encoding
+        url_str = str(self.url) if self.url else ''
+        self.url_hash = hashlib.sha256(url_str.encode('utf-8')).hexdigest()
         super(Surl, self).save(*args, **kwargs)
 
-    def generate_b62(self):
-        self.keyword = self.baseN(self.id)
+    def generate_b62(self) -> None:
+        if self.id:  # type: ignore
+            self.keyword = self.baseN(self.id)  # type: ignore
 
-    def hit(self):
-        self.hits += 1
-        self.save()
+    def hit(self) -> None:
+        # Use F() expression for atomic increment or refresh from db
+        from django.db.models import F
+        if self.id:  # type: ignore
+            Surl.objects.filter(id=self.id).update(hits=F('hits') + 1)  # type: ignore
+            self.refresh_from_db(fields=['hits'])
 
     @classmethod
-    def baseN(cls, num, b=62, numerals="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"):
+    def baseN(cls, num: int, b: int = 62, numerals: str = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") -> str:
         return ((num == 0) and  "0" ) or ( cls.baseN(num // b, b).lstrip("0") + numerals[num % b])
 
     @classmethod
-    def is_keyword_available(cls, keyword, domain):
-        return not Surl.objects.filter(keyword=keyword, domain=domain).first()
+    def is_keyword_available(cls, keyword: str, domain: Domain) -> bool:
+        return not cls.objects.filter(keyword=keyword, domain=domain).first()  # type: ignore
 
     @classmethod
-    def url_exists(cls, url, domain):
-        url_sha256 = hashlib.sha256(url.encode('utf-8')).hexdigest()
-        return Surl.objects.filter(url_hash=url_sha256, domain=domain).first()
+    def url_exists(cls, url: str, domain: Domain) -> Optional['Surl']:
+        url_str = str(url) if url else ''
+        url_sha256 = hashlib.sha256(url_str.encode('utf-8')).hexdigest()
+        return cls.objects.filter(url_hash=url_sha256, domain=domain).first()  # type: ignore
 
     @classmethod
-    def safe_create(cls, url, domain, title, keyword=None):
+    def safe_create(cls, url: str, domain: Domain, title: str, keyword: Optional[str] = None) -> 'Surl':
         old_link = cls.url_exists(url, domain)
         if keyword:
             if old_link and old_link.keyword == keyword:
@@ -72,34 +76,37 @@ class Surl(models.Model):
                 return old_link
             next_id = 5000
             try:
-              next_id = cls.objects.latest('id').id + 1
+                latest_obj = cls.objects.latest('id')  # type: ignore
+                if latest_obj.id:  # type: ignore
+                    next_id = latest_obj.id + 1  # type: ignore
             except ObjectDoesNotExist:
-              pass
-            keyword = cls.baseN( next_id )
+                pass
+            keyword = cls.baseN(next_id)
         suffix_count = 0
         suffix = ''
-        while not cls.is_keyword_available( keyword + suffix, domain ):
+        while not cls.is_keyword_available(keyword + suffix, domain):
             suffix_count += 1
-            suffix = '_' + cls.baseN( suffix_count )
+            suffix = '_' + cls.baseN(suffix_count)
 
-        surl = Surl( keyword=keyword + suffix, url = url, title=title, domain=domain )
+        surl = Surl(keyword=keyword + suffix, url=url, title=title, domain=domain)
         surl.save()
         return surl
     @classmethod
-    def launch(cls, keyword, domain_name):
+    def launch(cls, keyword: str, domain_name: str) -> Optional['Surl']:
         cache_key = f"{domain_name}/{keyword}"
         cached_surls = cache.get(cache_key)
         if cached_surls:
-            return cls.objects.get(pk=cached_surls)
-        result_set = cls.objects.filter(keyword=keyword, domain__name=domain_name)
+            return cls.objects.get(pk=cached_surls)  # type: ignore
+        result_set = cls.objects.filter(keyword=keyword, domain__name=domain_name)  # type: ignore
         if not result_set:
             return None
-        exact_match = [ r for r in result_set if r.keyword == keyword ]
+        exact_match = [r for r in result_set if r.keyword == keyword]
         if exact_match:
             final_match = exact_match[0]
         else:
             final_match = result_set[0]
-        cache.set(cache_key, final_match.id, settings.CACHE_TTL)
+        if final_match.id:  # type: ignore
+            cache.set(cache_key, final_match.id, settings.CACHE_TTL)  # type: ignore
         return final_match
 
 class SurlAdmin(admin.ModelAdmin):
@@ -112,20 +119,18 @@ class Profile(models.Model):
     domain = models.ForeignKey(Domain, on_delete=models.PROTECT)
     token = models.CharField(max_length=200, db_index=True)
 
-    def username(self):
-        return self.user.username
+    def username(self) -> str:
+        return self.user.username  # type: ignore
 
-    def domainname(self):
+    def domainname(self) -> str:
         return self.domain.name
+
     @classmethod
-    def authenticate(cls, request_token):
+    def authenticate(cls, request_token: str) -> Optional['Profile']:
         if len(request_token) == 0:
             return None
-        pf = cls.objects.filter(token=request_token).first()
-        if pf:
-            return pf
-        else:
-            return None
+        pf = cls.objects.filter(token=request_token).first()  # type: ignore
+        return pf
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ( 'username', 'domainname', 'token' )

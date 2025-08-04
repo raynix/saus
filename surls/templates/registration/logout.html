@@ -1,14 +1,84 @@
-{% extends 'base.html' %} {% load django_bootstrap5 %} {% block title %}Logout{%
-endblock %} {# Display django.contrib.messages as Bootstrap alerts #} {%
-bootstrap_messages %} {% block content %}
-<div class="row">
-  <div class="col-md-3"></div>
-  <div class="col-md-6">
-    <div class="card">
-      <div class="card-header">You have been logged out</div>
-      <div class="card-body"></div>
+{% extends 'base.html' %} {% load django_bootstrap5 %} {% block title %}Logged
+Out - SAUS{% endblock %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-success text-white text-center">
+        <h4 class="mb-0"><i class="fas fa-sign-out-alt me-2"></i>Logged Out</h4>
+      </div>
+      <div class="card-body p-4 text-center">
+        <div class="mb-4">
+          <i
+            class="fas fa-check-circle text-success"
+            style="font-size: 3rem"
+          ></i>
+        </div>
+
+        <h5 class="mb-3">You have been successfully logged out</h5>
+
+        <p class="text-muted mb-4">
+          Thank you for using SAUS. Your session has been terminated securely.
+        </p>
+
+        <div class="d-grid gap-2 mb-3">
+          <a href="{% url 'login' %}" class="btn btn-primary">
+            <i class="fas fa-sign-in-alt me-2"></i>Login Again
+          </a>
+        </div>
+
+        <div class="d-grid gap-2">
+          <a href="{% url 'shorten' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-home me-2"></i>Return to Home
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional info card -->
+    <div class="card mt-3 border-0">
+      <div class="card-body text-center">
+        <small class="text-muted">
+          <i class="fas fa-shield-alt me-1"></i>
+          For your security, please close your browser if you're on a shared
+          computer
+        </small>
+      </div>
     </div>
   </div>
-  <div class="col-md-3"></div>
 </div>
+
+<style>
+  .card {
+    border-radius: 10px;
+  }
+
+  .card-header {
+    border-radius: 10px 10px 0 0 !important;
+  }
+
+  .btn {
+    border-radius: 8px;
+  }
+
+  .fa-check-circle {
+    animation: fadeIn 0.5s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @media (max-width: 576px) {
+    .card {
+      margin: 0 10px;
+    }
+  }
+</style>
 {% endblock %}

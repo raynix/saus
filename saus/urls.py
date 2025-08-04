@@ -21,6 +21,9 @@ from surls import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/register/', views.register, name='register'),
+
     path('', views.shorten, name='shorten'),
     re_path(r'^(?P<keyword>[0-9a-zA-Z_]+)/?', include('surls.urls')),
 ]

@@ -8,15 +8,22 @@
       type="text/css"
       href="{% static 'surl/main.css' %}"
     />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">SAUS Such A Url Shortener</a>
+      <a class="navbar-brand" href="{% url 'shorten' %}">
+        <i class="fas fa-link me-2"></i>SAUS Such A Url Shortener
+      </a>
       <button
         class="navbar-toggler"
         type="button"
-        data-toggle="collapse"
-        data-target="#navbarSupportedContent"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent"
         aria-expanded="false"
         aria-label="Toggle navigation"
@@ -25,13 +32,95 @@
       </button>
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="#">.</a>
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'shorten' %}">
+              <i class="fas fa-home me-1"></i>Home
+            </a>
           </li>
+          {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="/manage/_all">
+              <i class="fas fa-cog me-1"></i>Manage URLs
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+
+        <ul class="navbar-nav">
+          {% if user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="navbarDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="fas fa-user me-1"></i>{{ user.username }}
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="/manage/_all">
+                  <i class="fas fa-cog me-2"></i>Manage URLs
+                </a>
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <form
+                  method="post"
+                  action="{% url 'logout' %}"
+                  style="margin: 0"
+                >
+                  {% csrf_token %}
+                  <button type="submit" class="dropdown-item logout-button">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">
+              <i class="fas fa-sign-in-alt me-1"></i>Login
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'register' %}">
+              <i class="fas fa-user-plus me-1"></i>Register
+            </a>
+          </li>
+          {% endif %}
         </ul>
       </div>
     </nav>
+
+    <style>
+      .logout-button {
+        border: none !important;
+        background: none !important;
+        width: 100% !important;
+        text-align: left !important;
+        padding: 0.25rem 1rem !important;
+        color: inherit !important;
+        font-size: inherit !important;
+        font-family: inherit !important;
+      }
+
+      .logout-button:hover {
+        background-color: var(--bs-dropdown-link-hover-bg) !important;
+        color: var(--bs-dropdown-link-hover-color) !important;
+      }
+
+      .logout-button:focus {
+        background-color: var(--bs-dropdown-link-hover-bg) !important;
+        color: var(--bs-dropdown-link-hover-color) !important;
+        outline: none !important;
+      }
+    </style>
+
     {% if messages %}
     <div class="alert alert-success" role="alert">
       <ul class="messages">

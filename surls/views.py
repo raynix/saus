@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, FileResponse
 from django.views.decorators.cache import cache_page
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
@@ -58,7 +59,7 @@ def launch(request, keyword):
   else:
     return HttpResponse(status=404)
 
-#@login_required
+@login_required
 def manage(request, keyword):
   current_user = request.user
   if keyword == '_all':
@@ -84,3 +85,18 @@ def qr(request, keyword):
   img.save(in_memory_file)
   in_memory_file.seek(0)
   return FileResponse(in_memory_file, filename='qr.png')
+
+def register(request):
+  if request.method == 'POST':
+    form = CustomUserCreationForm(request.POST)
+    if form.is_valid():
+      user = form.save()
+      login(request, user)
+      messages.success(request, f"Welcome {user.username}! Your account has been created successfully.")
+      return redirect('/')
+    else:
+      messages.error(request, "Please correct the errors below.")
+  else:
+    form = CustomUserCreationForm()
+
+  return render(request, 'registration/register.html', {'form': form})

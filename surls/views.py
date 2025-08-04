@@ -2,32 +2,28 @@ import requests
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, FileResponse
-from django.views.decorators.cache import cache_page
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.contrib import messages
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import Paginator
 from django.db.models import Q
 
 import qrcode
 from qrcode.image.pure import PyPNGImage
 from tempfile import SpooledTemporaryFile
 
-from .models import *
-from .forms import *
+from .models import Domain, Surl, Profile, Bookmark
+from .forms import SurlForm, SearchSurlForm, CustomUserCreationForm, BookmarkForm
 
 import logging
 logger = logging.getLogger(__name__)
-
-def index(request):
-  return HttpResponse("Hello, world. You're at the polls index.")
 
 def shorten(request):
   domain_name = request.META['HTTP_HOST']
   domain = Domain.objects.get(name=domain_name)
   form = SurlForm()
   if not domain:
-    return HttpResponse("Domain not supported", status=404)
+    return HttpResponse(status=404)
 
   if request.method == 'POST':
     form = SurlForm(request.POST)
@@ -100,3 +96,107 @@ def register(request):
     form = CustomUserCreationForm()
 
   return render(request, 'registration/register.html', {'form': form})
+
+@login_required
+def bookmark_list(request):
+  """View to list user's bookmarks"""
+  try:
+    profile = Profile.objects.get(user=request.user)
+    bookmarks = Bookmark.objects.filter(profile=profile)
+  except Profile.DoesNotExist:
+    messages.error(request, "Please contact admin to set up your profile.")
+    return redirect('/')
+
+  search = request.GET.get('search', None)
+  if search:
+    bookmarks = bookmarks.filter(
+      Q(title__icontains=search) |
+      Q(tags__icontains=search)
+    )
+
+  paginator = Paginator(bookmarks, 10)
+  page = request.GET.get('page')
+  bookmarks_page = paginator.get_page(page)
+
+  return render(request, 'bookmarks/list.html', {
+    'bookmarks': bookmarks_page,
+    'search': search
+  })
+
+@login_required
+def bookmark_create(request):
+  """View to create a new bookmark"""
+  try:
+    profile = Profile.objects.get(user=request.user)
+  except Profile.DoesNotExist:
+    messages.error(request, "Please contact admin to set up your profile.")
+    return redirect('/')
+
+  if request.method == 'POST':
+    form = BookmarkForm(request.POST)
+    if form.is_valid():
+      bookmark = form.save(commit=False)
+      bookmark.profile = profile
+      bookmark.save()
+      messages.success(request, f"Bookmark '{bookmark.title}' created successfully!")
+      return redirect('bookmark_list')
+    else:
+      messages.error(request, "Please correct the errors below.")
+  else:
+    form = BookmarkForm()
+
+  return render(request, 'bookmarks/create.html', {'form': form})
+
+@login_required
+def bookmark_edit(request, bookmark_id):
+  """View to edit an existing bookmark"""
+  try:
+    profile = Profile.objects.get(user=request.user)
+    bookmark = get_object_or_404(Bookmark, id=bookmark_id, profile=profile)
+  except Profile.DoesNotExist:
+    messages.error(request, "Please contact admin to set up your profile.")
+    return redirect('/')
+
+  if request.method == 'POST':
+    form = BookmarkForm(request.POST, instance=bookmark)
+    if form.is_valid():
+      form.save()
+      messages.success(request, f"Bookmark '{bookmark.title}' updated successfully!")
+      return redirect('bookmark_list')
+    else:
+      messages.error(request, "Please correct the errors below.")
+  else:
+    form = BookmarkForm(instance=bookmark)
+
+  return render(request, 'bookmarks/edit.html', {'form': form, 'bookmark': bookmark})
+
+@login_required
+def bookmark_delete(request, bookmark_id):
+  """View to delete a bookmark"""
+  try:
+    profile = Profile.objects.get(user=request.user)
+    bookmark = get_object_or_404(Bookmark, id=bookmark_id, profile=profile)
+  except Profile.DoesNotExist:
+    messages.error(request, "Please contact admin to set up your profile.")
+    return redirect('/')
+
+  if request.method == 'POST':
+    title = bookmark.title
+    bookmark.delete()
+    messages.success(request, f"Bookmark '{title}' deleted successfully!")
+    return redirect('bookmark_list')
+
+  return render(request, 'bookmarks/delete.html', {'bookmark': bookmark})
+
+@login_required
+def bookmark_visit(request, bookmark_id):
+  """View to visit a bookmark and increment hit counter"""
+  try:
+    profile = Profile.objects.get(user=request.user)
+    bookmark = get_object_or_404(Bookmark, id=bookmark_id, profile=profile)
+  except Profile.DoesNotExist:
+    messages.error(request, "Please contact admin to set up your profile.")
+    return redirect('/')
+
+  bookmark.hit()
+  return redirect(bookmark.url)

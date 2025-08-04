@@ -3,7 +3,7 @@ from django.core import validators
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from surls.models import Surl
+from surls.models import Surl, Bookmark
 
 class SearchSurlForm(forms.Form):
   search = forms.CharField(label='', max_length=100, required=False)
@@ -80,3 +80,34 @@ class CustomUserCreationForm(UserCreationForm):
     if commit:
       user.save()
     return user
+
+class BookmarkForm(forms.ModelForm):
+  tags = forms.CharField(
+    max_length=200,
+    required=False,
+    help_text='Comma-separated tags (e.g. programming, tutorial, reference)',
+    widget=forms.TextInput(attrs={
+      'class': 'form-control',
+      'placeholder': 'Enter tags separated by commas'
+    })
+  )
+
+  class Meta:
+    model = Bookmark
+    fields = ['title', 'url', 'tags']
+    widgets = {
+      'title': forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Enter bookmark title'
+      }),
+      'url': forms.URLInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'https://example.com'
+      })
+    }
+
+  def clean_url(self):
+    url = self.cleaned_data.get('url')
+    if url and not url.startswith(('http://', 'https://')):
+      url = 'https://' + url
+    return url

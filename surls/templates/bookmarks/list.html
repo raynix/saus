@@ -1,0 +1,193 @@
+{% extends 'base.html' %} {% load django_bootstrap5 %} {% block title %}My
+Bookmarks - SAUS{% endblock %} {% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-bookmark me-2"></i>My Bookmarks</h2>
+    <a href="{% url 'bookmark_create' %}" class="btn btn-primary">
+      <i class="fas fa-plus me-2"></i>Add Bookmark
+    </a>
+  </div>
+
+  <!-- Search Form -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <form method="get" class="d-flex">
+        <input
+          type="text"
+          name="search"
+          class="form-control me-2"
+          placeholder="Search bookmarks..."
+          value="{{ search|default:'' }}"
+        />
+        <button type="submit" class="btn btn-outline-secondary">
+          <i class="fas fa-search"></i>
+        </button>
+        {% if search %}
+        <a href="{% url 'bookmark_list' %}" class="btn btn-outline-danger ms-2">
+          <i class="fas fa-times"></i>
+        </a>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  {% if bookmarks %}
+  <div class="row">
+    {% for bookmark in bookmarks %}
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">
+            <a
+              href="{% url 'bookmark_visit' bookmark.id %}"
+              class="text-decoration-none"
+            >
+              {{ bookmark.title }}
+              <i class="fas fa-external-link-alt text-muted small ms-1"></i>
+            </a>
+          </h5>
+
+          <p class="card-text">
+            <small class="text-muted">
+              <i class="fas fa-link me-1"></i>
+              <a
+                href="{% url 'bookmark_visit' bookmark.id %}"
+                class="text-muted text-decoration-none"
+              >
+                {{ bookmark.url|truncatechars:50 }}
+              </a>
+            </small>
+          </p>
+
+          {% if bookmark.get_tags_list %}
+          <div class="mb-2">
+            {% for tag in bookmark.get_tags_list %}
+            <span class="badge bg-secondary me-1">{{ tag }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">
+              <i class="fas fa-clock me-1"></i>
+              {{ bookmark.created_at|date:"M d, Y" }}
+            </small>
+            <div class="btn-group" role="group">
+              <a
+                href="{% url 'bookmark_edit' bookmark.id %}"
+                class="btn btn-sm btn-outline-primary"
+              >
+                <i class="fas fa-edit"></i>
+              </a>
+              <a
+                href="{% url 'bookmark_delete' bookmark.id %}"
+                class="btn btn-sm btn-outline-danger"
+              >
+                <i class="fas fa-trash"></i>
+              </a>
+            </div>
+          </div>
+
+          <div class="mt-2">
+            <small class="text-muted">
+              <i class="fas fa-mouse-pointer me-1"></i>
+              {{ bookmark.hits }} visit{{ bookmark.hits|pluralize }}
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if bookmarks.has_other_pages %}
+  <nav aria-label="Bookmark pagination">
+    <ul class="pagination justify-content-center">
+      {% if bookmarks.has_previous %}
+      <li class="page-item">
+        <a
+          class="page-link"
+          href="?page={{ bookmarks.previous_page_number }}{% if search %}&search={{ search }}{% endif %}"
+        >
+          <i class="fas fa-chevron-left"></i>
+        </a>
+      </li>
+      {% endif %} {% for num in bookmarks.paginator.page_range %} {% if
+      bookmarks.number == num %}
+      <li class="page-item active">
+        <span class="page-link">{{ num }}</span>
+      </li>
+      {% elif num > bookmarks.number|add:'-3' and num < bookmarks.number|add:'3'
+      %}
+      <li class="page-item">
+        <a
+          class="page-link"
+          href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}"
+          >{{ num }}</a
+        >
+      </li>
+      {% endif %} {% endfor %} {% if bookmarks.has_next %}
+      <li class="page-item">
+        <a
+          class="page-link"
+          href="?page={{ bookmarks.next_page_number }}{% if search %}&search={{ search }}{% endif %}"
+        >
+          <i class="fas fa-chevron-right"></i>
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %} {% else %}
+  <!-- Empty State -->
+  <div class="text-center py-5">
+    <div class="mb-4">
+      <i class="fas fa-bookmark text-muted" style="font-size: 4rem"></i>
+    </div>
+    <h4 class="text-muted">No bookmarks found</h4>
+    {% if search %}
+    <p class="text-muted">
+      No bookmarks match your search for "{{ search }}".
+      <a href="{% url 'bookmark_list' %}">Clear search</a> to see all bookmarks.
+    </p>
+    {% else %}
+    <p class="text-muted mb-4">
+      You haven't created any bookmarks yet. Start by adding your first
+      bookmark!
+    </p>
+    <a href="{% url 'bookmark_create' %}" class="btn btn-primary btn-lg">
+      <i class="fas fa-plus me-2"></i>Add Your First Bookmark
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<style>
+  .card {
+    border-radius: 10px;
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+  }
+
+  .card-title a {
+    color: inherit;
+  }
+
+  .card-title a:hover {
+    color: var(--bs-primary);
+  }
+
+  .badge {
+    font-size: 0.7em;
+  }
+
+  .btn-group .btn {
+    border-radius: 0.25rem;
+  }
+</style>
+{% endblock %}

@@ -134,3 +134,57 @@ class Profile(models.Model):
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ( 'username', 'domainname', 'token' )
+
+class Bookmark(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='bookmarks')
+    title = models.CharField(max_length=500)
+    url = models.URLField(max_length=1000)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+    tags = models.CharField(max_length=200, blank=True, help_text="Comma-separated tags")
+    hits = models.BigIntegerField(default=0)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self) -> str:
+        return f"{self.title} - {self.profile.username()}"
+
+    def get_tags_list(self) -> list:
+        """Return tags as a list"""
+        if self.tags:
+            return [tag.strip() for tag in self.tags.split(',') if tag.strip()]
+        return []
+
+    def set_tags_from_list(self, tag_list: list) -> None:
+        """Set tags from a list of strings"""
+        self.tags = ', '.join(tag_list)
+
+    def hit(self) -> None:
+        """Increment hit counter atomically"""
+        from django.db.models import F
+        if self.id:
+            Bookmark.objects.filter(id=self.id).update(hits=F('hits') + 1)
+            self.refresh_from_db(fields=['hits'])
+
+class BookmarkAdmin(admin.ModelAdmin):
+    list_display = ('title', 'profile', 'url', 'hits', 'created_at')
+    list_filter = ('created_at', 'profile__user')
+    search_fields = ('title', 'url', 'tags')
+    readonly_fields = ('created_at', 'modified_at', 'hits')
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'url', 'profile')
+        }),
+        ('Categorization', {
+            'fields': ('tags',)
+        }),
+        ('Statistics', {
+            'fields': ('hits',),
+            'classes': ('collapse',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'modified_at'),
+            'classes': ('collapse',)
+        }),
+    )

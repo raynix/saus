@@ -1,9 +1,5 @@
-{% extends 'base.html' %}
-{% load django_bootstrap5 %}
-
-{% block title %}My Bookmarks - SAUS{% endblock %}
-
-{% block content %}
+{% extends 'base.html' %} {% load django_bootstrap5 %} {% block title %}My
+Bookmarks - SAUS{% endblock %} {% block content %}
 <div class="container-fluid">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="fas fa-bookmark me-2"></i>My Bookmarks</h2>
@@ -12,7 +8,7 @@
     </a>
   </div>
 
-  <!-- Search Form -->
+  <!-- Search Form with Dropdown -->
   <div class="row mb-4">
     <div class="col-md-6">
       <div class="position-relative">
@@ -22,6 +18,7 @@
           class="form-control"
           placeholder="Search bookmarks..."
           value="{{ search|default:'' }}"
+          autocomplete="off"
         />
         <button
           type="button"
@@ -31,187 +28,98 @@
         >
           <i class="fas fa-times text-muted"></i>
         </button>
-      </div>
-    </div>
-  </div>
 
-  {% if bookmarks %}
-  <div class="row" id="bookmarkContainer">
-    {% for bookmark in bookmarks %}
-    <div
-      class="col-md-6 col-lg-4 mb-4 bookmark-card"
-      data-title="{{ bookmark.title|lower }}"
-      data-url="{{ bookmark.url|lower }}"
-      data-tags="{% for tag in bookmark.get_tags_list %}{{ tag|lower }} {% endfor %}"
-    >
-      <div class="card h-100 shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">
-            <a
-              href="{% url 'bookmark_visit' bookmark.id %}"
-              class="text-decoration-none"
-            >
-              {{ bookmark.title }}
-              <i class="fas fa-external-link-alt text-muted small ms-1"></i>
-            </a>
-          </h5>
-
-          <p class="card-text">
-            <small class="text-muted">
-              <i class="fas fa-link me-1"></i>
-              <a
-                href="{% url 'bookmark_visit' bookmark.id %}"
-                class="text-muted text-decoration-none"
-              >
-                {{ bookmark.url|truncatechars:50 }}
-              </a>
-            </small>
-          </p>
-
-          {% if bookmark.get_tags_list %}
-          <div class="mb-2">
-            {% for tag in bookmark.get_tags_list %}
-            <span class="badge bg-secondary me-1">{{ tag }}</span>
-            {% endfor %}
-          </div>
-          {% endif %}
-
-          <div class="d-flex justify-content-between align-items-center">
-            <small class="text-muted">
-              <i class="fas fa-clock me-1"></i>
-              {{ bookmark.created_at|date:"M d, Y" }}
-            </small>
-            <div class="btn-group" role="group">
-              <a
-                href="{% url 'bookmark_edit' bookmark.id %}"
-                class="btn btn-sm btn-outline-primary"
-              >
-                <i class="fas fa-edit"></i>
-              </a>
-              <a
-                href="{% url 'bookmark_delete' bookmark.id %}"
-                class="btn btn-sm btn-outline-danger"
-              >
-                <i class="fas fa-trash"></i>
-              </a>
-            </div>
-          </div>
-
-          <div class="mt-2">
-            <small class="text-muted">
-              <i class="fas fa-mouse-pointer me-1"></i>
-              {{ bookmark.hits }} visit{{ bookmark.hits|pluralize }}
-            </small>
-          </div>
+        <!-- Dropdown List -->
+        <div
+          id="bookmarkDropdown"
+          class="dropdown-menu w-100"
+          style="display: none; max-height: 400px; overflow-y: auto"
+        >
+          <!-- Results will be populated here -->
         </div>
       </div>
     </div>
-    {% endfor %}
   </div>
 
-  <!-- Pagination -->
-  {% if bookmarks.has_other_pages %}
-  <nav aria-label="Bookmark pagination">
-    <ul class="pagination justify-content-center">
-      {% if bookmarks.has_previous %}
-      <li class="page-item">
-        <a
-          class="page-link"
-          href="?page={{ bookmarks.previous_page_number }}{% if search %}&search={{ search }}{% endif %}"
-        >
-          <i class="fas fa-chevron-left"></i>
-        </a>
-      </li>
-      {% endif %}
-
-      {% for num in bookmarks.paginator.page_range %}
-        {% if bookmarks.number == num %}
-        <li class="page-item active">
-          <span class="page-link">{{ num }}</span>
-        </li>
-        {% elif num > bookmarks.number|add:'-3' and num < bookmarks.number|add:'3' %}
-        <li class="page-item">
-          <a
-            class="page-link"
-            href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}"
-          >{{ num }}</a>
-        </li>
-        {% endif %}
-      {% endfor %}
-
-      {% if bookmarks.has_next %}
-      <li class="page-item">
-        <a
-          class="page-link"
-          href="?page={{ bookmarks.next_page_number }}{% if search %}&search={{ search }}{% endif %}"
-        >
-          <i class="fas fa-chevron-right"></i>
-        </a>
-      </li>
-      {% endif %}
-    </ul>
-  </nav>
-  {% endif %}
-
-  {% else %}
-  <!-- Empty State -->
+  {% if not search %}
+  <!-- Instructions when no search -->
   <div class="text-center py-5">
     <div class="mb-4">
-      <i class="fas fa-bookmark text-muted" style="font-size: 4rem"></i>
+      <i class="fas fa-search text-muted" style="font-size: 3rem"></i>
     </div>
-    <h4 class="text-muted">No bookmarks found</h4>
-    {% if search %}
+    <h4 class="text-muted">Search your bookmarks</h4>
     <p class="text-muted">
-      No bookmarks match your search for "{{ search }}".
-      <a href="{% url 'bookmark_list' %}">Clear search</a> to see all bookmarks.
+      Type in the search box above to find your bookmarks by title or tags.
     </p>
-    {% else %}
-    <p class="text-muted mb-4">
-      You haven't created any bookmarks yet. Start by adding your first
-      bookmark!
-    </p>
-    <a href="{% url 'bookmark_create' %}" class="btn btn-primary btn-lg">
-      <i class="fas fa-plus me-2"></i>Add Your First Bookmark
-    </a>
-    {% endif %}
   </div>
   {% endif %}
+
+  <!-- Hidden data for JavaScript -->
+  <div id="bookmarkData" style="display: none">
+    {% for bookmark in bookmarks %}
+    <div
+      class="bookmark-item"
+      data-id="{{ bookmark.id }}"
+      data-title="{{ bookmark.title }}"
+      data-url="{{ bookmark.url }}"
+      data-tags="{% for tag in bookmark.get_tags_list %}{{ tag }} {% endfor %}"
+      data-visit-url="{% url 'bookmark_visit' bookmark.id %}"
+      data-edit-url="{% url 'bookmark_edit' bookmark.id %}"
+    ></div>
+    {% endfor %}
+  </div>
 </div>
 
 <style>
-  .card {
-    border-radius: 10px;
-    transition: transform 0.2s ease-in-out;
+  .dropdown-menu {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    margin-top: 0.125rem;
   }
 
-  .card:hover {
-    transform: translateY(-2px);
+  .dropdown-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f8f9fa;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
   }
 
-  .card-title a {
-    color: inherit;
+  .dropdown-item:last-child {
+    border-bottom: none;
   }
 
-  .card-title a:hover {
-    color: var(--bs-primary);
+  .dropdown-item:hover,
+  .dropdown-item.selected {
+    background-color: #d1e7dd;
   }
 
-  .badge {
-    font-size: 0.7em;
+  .bookmark-title {
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 0.25rem;
   }
 
-  .btn-group .btn {
+  .bookmark-tags {
+    font-size: 0.875rem;
+    color: #6c757d;
+  }
+
+  .tag {
+    display: inline-block;
+    background-color: #e9ecef;
+    color: #495057;
+    padding: 0.125rem 0.5rem;
     border-radius: 0.25rem;
-  }
-
-  .bookmark-card.hidden {
-    display: none !important;
+    margin-right: 0.25rem;
+    font-size: 0.75rem;
   }
 
   #clearSearch {
     border: none !important;
     background: none !important;
     padding: 0.375rem 0.75rem;
+    z-index: 10;
   }
 
   #clearSearch:hover {
@@ -224,75 +132,166 @@
     padding: 0.1rem 0.2rem;
     border-radius: 0.2rem;
   }
+
+  .no-results {
+    padding: 1rem;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+  }
+
+  .position-relative {
+    position: relative !important;
+  }
 </style>
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("searchInput");
     const clearButton = document.getElementById("clearSearch");
-    const bookmarkCards = document.querySelectorAll(".bookmark-card");
-    const bookmarkContainer = document.getElementById("bookmarkContainer");
+    const dropdown = document.getElementById("bookmarkDropdown");
+    const bookmarkItems = document.querySelectorAll(".bookmark-item");
+
+    // Debounce variables
+    let searchTimeout;
+    const DEBOUNCE_DELAY = 300; // 300ms delay
+
+    // Selection variables
+    let selectedIndex = -1;
+    let visibleBookmarks = [];
+
+    // Collect all bookmark data
+    const bookmarks = Array.from(bookmarkItems).map((item) => ({
+      id: item.dataset.id,
+      title: item.dataset.title,
+      url: item.dataset.url,
+      tags: item.dataset.tags.trim(),
+      visitUrl: item.dataset.visitUrl,
+      editUrl: item.dataset.editUrl,
+    }));
+
+    function highlightText(text, searchTerm) {
+      if (!searchTerm) return text;
+      const regex = new RegExp(`(${searchTerm})`, "gi");
+      return text.replace(regex, '<span class="search-highlight">$1</span>');
+    }
+
+    function renderBookmarkItem(bookmark, searchTerm) {
+      const tags = bookmark.tags
+        ? bookmark.tags.split(" ").filter((tag) => tag.length > 0)
+        : [];
+      const tagsHtml = tags
+        .map(
+          (tag) => `<span class="tag">${highlightText(tag, searchTerm)}</span>`,
+        )
+        .join("");
+
+      return `
+        <div class="dropdown-item" onclick="visitBookmark('${bookmark.visitUrl}')" data-bookmark-id="${bookmark.id}">
+          <div class="bookmark-title">${highlightText(bookmark.title, searchTerm)}</div>
+          <div class="bookmark-tags">${tagsHtml}</div>
+        </div>
+      `;
+    }
+
+    function updateSelection() {
+      const items = dropdown.querySelectorAll(".dropdown-item");
+      items.forEach((item, index) => {
+        item.classList.toggle("selected", index === selectedIndex);
+      });
+    }
 
     function performSearch() {
       const searchTerm = searchInput.value.toLowerCase().trim();
-      let visibleCount = 0;
 
       // Show/hide clear button
       clearButton.style.display = searchTerm ? "block" : "none";
 
-      bookmarkCards.forEach((card) => {
-        const title = card.dataset.title || "";
-        const url = card.dataset.url || "";
-        const tags = card.dataset.tags || "";
+      if (!searchTerm) {
+        // Hide dropdown when no search term
+        dropdown.style.display = "none";
+        selectedIndex = -1;
+        visibleBookmarks = [];
+        return;
+      }
 
-        const isMatch =
-          title.includes(searchTerm) ||
-          url.includes(searchTerm) ||
-          tags.includes(searchTerm);
-
-        if (isMatch || !searchTerm) {
-          card.classList.remove("hidden");
-          visibleCount++;
-        } else {
-          card.classList.add("hidden");
-        }
+      // Filter bookmarks
+      const filteredBookmarks = bookmarks.filter((bookmark) => {
+        const title = bookmark.title.toLowerCase();
+        const tags = bookmark.tags.toLowerCase();
+        return title.includes(searchTerm) || tags.includes(searchTerm);
       });
 
-      // Show/hide "no results" message
-      if (bookmarkContainer) {
-        let noResults = document.getElementById("noSearchResults");
+      // Store visible bookmarks for navigation
+      visibleBookmarks = filteredBookmarks;
 
-        if (visibleCount === 0 && searchTerm) {
-          // Create or show "no results" message
-          if (!noResults) {
-            noResults = document.createElement("div");
-            noResults.id = "noSearchResults";
-            noResults.className = "col-12 text-center py-5";
-            noResults.innerHTML = `
-              <div class="mb-4">
-                <i class="fas fa-search text-muted" style="font-size: 3rem"></i>
-              </div>
-              <h5 class="text-muted">No bookmarks found</h5>
-              <p class="text-muted">
-                No bookmarks match your search for "<span id="searchTermDisplay">${searchTerm}</span>".
-              </p>
-            `;
-            bookmarkContainer.appendChild(noResults);
-          } else {
-            noResults.style.display = "block";
-            document.getElementById("searchTermDisplay").textContent = searchTerm;
-          }
-        } else {
-          // Hide "no results" message
-          if (noResults) {
-            noResults.style.display = "none";
-          }
-        }
+      // Show dropdown
+      dropdown.style.display = "block";
+
+      if (filteredBookmarks.length === 0) {
+        // Show no results message
+        dropdown.innerHTML = `
+          <div class="no-results">
+            <i class="fas fa-search me-2"></i>
+            No bookmarks found for "${searchTerm}"
+          </div>
+        `;
+        selectedIndex = -1;
+      } else {
+        // Render filtered bookmarks
+        dropdown.innerHTML = filteredBookmarks
+          .map((bookmark) => renderBookmarkItem(bookmark, searchTerm))
+          .join("");
+
+        // Select first item by default
+        selectedIndex = 0;
+        updateSelection();
       }
     }
 
-    // Real-time search as user types
-    searchInput.addEventListener("input", performSearch);
+    // Debounced search - only trigger after user stops typing for 300ms
+    searchInput.addEventListener("input", function () {
+      // Clear any existing timeout
+      clearTimeout(searchTimeout);
+
+      // Set a new timeout
+      searchTimeout = setTimeout(performSearch, DEBOUNCE_DELAY);
+    });
+
+    // Keyboard navigation
+    searchInput.addEventListener("keydown", function (event) {
+      const items = dropdown.querySelectorAll(
+        ".dropdown-item:not(.no-results)",
+      );
+
+      if (items.length === 0) return;
+
+      switch (event.key) {
+        case "ArrowDown":
+          event.preventDefault();
+          selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+          updateSelection();
+          break;
+
+        case "ArrowUp":
+          event.preventDefault();
+          selectedIndex = Math.max(selectedIndex - 1, 0);
+          updateSelection();
+          break;
+
+        case "Enter":
+          event.preventDefault();
+          if (selectedIndex >= 0 && selectedIndex < visibleBookmarks.length) {
+            visitBookmark(visibleBookmarks[selectedIndex].visitUrl);
+          }
+          break;
+
+        case "Escape":
+          dropdown.style.display = "none";
+          selectedIndex = -1;
+          break;
+      }
+    });
 
     // Clear search functionality
     clearButton.addEventListener("click", function () {
@@ -301,10 +300,30 @@
       searchInput.focus();
     });
 
+    // Hide dropdown when clicking outside
+    document.addEventListener("click", function (event) {
+      if (!event.target.closest(".position-relative")) {
+        dropdown.style.display = "none";
+        selectedIndex = -1;
+      }
+    });
+
+    // Show dropdown when focusing on search input (if there's a search term)
+    searchInput.addEventListener("focus", function () {
+      if (searchInput.value.trim()) {
+        performSearch();
+      }
+    });
+
     // Initial search if there's a value
     if (searchInput.value) {
       performSearch();
     }
   });
+
+  // Function to visit bookmark
+  function visitBookmark(url) {
+    window.location.href = url;
+  }
 </script>
 {% endblock %}

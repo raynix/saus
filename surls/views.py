@@ -102,24 +102,15 @@ def bookmark_list(request):
   """View to list user's bookmarks"""
   try:
     profile = Profile.objects.get(user=request.user)
-    bookmarks = Bookmark.objects.filter(profile=profile)
+    bookmarks = Bookmark.objects.filter(profile=profile).order_by('-created_at')
   except Profile.DoesNotExist:
     messages.error(request, "Please contact admin to set up your profile.")
     return redirect('/')
 
   search = request.GET.get('search', None)
-  if search:
-    bookmarks = bookmarks.filter(
-      Q(title__icontains=search) |
-      Q(tags__icontains=search)
-    )
-
-  paginator = Paginator(bookmarks, 10)
-  page = request.GET.get('page')
-  bookmarks_page = paginator.get_page(page)
 
   return render(request, 'bookmarks/list.html', {
-    'bookmarks': bookmarks_page,
+    'bookmarks': bookmarks,
     'search': search
   })
 

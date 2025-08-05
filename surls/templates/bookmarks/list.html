@@ -1,5 +1,9 @@
-{% extends 'base.html' %} {% load django_bootstrap5 %} {% block title %}My
-Bookmarks - SAUS{% endblock %} {% block content %}
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}My Bookmarks - SAUS{% endblock %}
+
+{% block content %}
 <div class="container-fluid">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="fas fa-bookmark me-2"></i>My Bookmarks</h2>
@@ -113,21 +117,24 @@ Bookmarks - SAUS{% endblock %} {% block content %}
           <i class="fas fa-chevron-left"></i>
         </a>
       </li>
-      {% endif %} {% for num in bookmarks.paginator.page_range %} {% if
-      bookmarks.number == num %}
-      <li class="page-item active">
-        <span class="page-link">{{ num }}</span>
-      </li>
-      {% elif num > bookmarks.number|add:'-3' and num < bookmarks.number|add:'3'
-      %}
-      <li class="page-item">
-        <a
-          class="page-link"
-          href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}"
-          >{{ num }}</a
-        >
-      </li>
-      {% endif %} {% endfor %} {% if bookmarks.has_next %}
+      {% endif %}
+
+      {% for num in bookmarks.paginator.page_range %}
+        {% if bookmarks.number == num %}
+        <li class="page-item active">
+          <span class="page-link">{{ num }}</span>
+        </li>
+        {% elif num > bookmarks.number|add:'-3' and num < bookmarks.number|add:'3' %}
+        <li class="page-item">
+          <a
+            class="page-link"
+            href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}"
+          >{{ num }}</a>
+        </li>
+        {% endif %}
+      {% endfor %}
+
+      {% if bookmarks.has_next %}
       <li class="page-item">
         <a
           class="page-link"
@@ -139,7 +146,9 @@ Bookmarks - SAUS{% endblock %} {% block content %}
       {% endif %}
     </ul>
   </nav>
-  {% endif %} {% else %}
+  {% endif %}
+
+  {% else %}
   <!-- Empty State -->
   <div class="text-center py-5">
     <div class="mb-4">

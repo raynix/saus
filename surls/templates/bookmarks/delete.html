@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}Delete Bookmark - SAUS{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-danger text-white text-center">
+          <h4 class="mb-0">
+            <i class="fas fa-trash me-2"></i>Delete Bookmark
+          </h4>
+        </div>
+        <div class="card-body p-4 text-center">
+          <div class="mb-4">
+            <i
+              class="fas fa-exclamation-triangle text-danger"
+              style="font-size: 3rem"
+            ></i>
+          </div>
+
+          <h5 class="mb-3">Are you sure?</h5>
+
+          <p class="text-muted mb-3">
+            You are about to delete the bookmark:
+          </p>
+
+          <div class="alert alert-light border" role="alert">
+            <h6 class="mb-2">
+              <i class="fas fa-bookmark me-2"></i>{{ bookmark.title }}
+            </h6>
+            <small class="text-muted">
+              <i class="fas fa-link me-1"></i>
+              <a href="{{ bookmark.url }}" target="_blank" class="text-decoration-none">
+                {{ bookmark.url|truncatechars:50 }}
+              </a>
+            </small>
+            {% if bookmark.get_tags_list %}
+            <div class="mt-2">
+              <small class="text-muted">
+                <i class="fas fa-tags me-1"></i>
+                {% for tag in bookmark.get_tags_list %}
+                  <span class="badge bg-secondary me-1">{{ tag }}</span>
+                {% endfor %}
+              </small>
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="alert alert-warning" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Warning:</strong> This action cannot be undone.
+          </div>
+
+          <form method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger me-2">
+              <i class="fas fa-trash me-2"></i>Yes, Delete
+            </button>
+          </form>
+
+          <a href="{% url 'bookmark_list' %}" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-times me-2"></i>Cancel
+          </a>
+
+          <a href="{% url 'bookmark_edit' bookmark.id %}" class="btn btn-outline-primary">
+            <i class="fas fa-edit me-2"></i>Edit Instead
+          </a>
+        </div>
+      </div>
+
+      <!-- Additional info card -->
+      <div class="card mt-3 border-0">
+        <div class="card-body text-center">
+          <small class="text-muted">
+            <i class="fas fa-clock me-1"></i>
+            Created: {{ bookmark.created_at|date:"M d, Y" }} |
+            <i class="fas fa-mouse-pointer me-1"></i>
+            {{ bookmark.hits }} visit{{ bookmark.hits|pluralize }}
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .card {
+    border-radius: 10px;
+  }
+
+  .card-header {
+    border-radius: 10px 10px 0 0 !important;
+  }
+
+  .btn {
+    border-radius: 8px;
+  }
+
+  .fa-exclamation-triangle {
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .alert {
+    border-radius: 8px;
+  }
+
+  @media (max-width: 576px) {
+    .card {
+      margin: 0 10px;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+  }
+</style>
+{% endblock %}

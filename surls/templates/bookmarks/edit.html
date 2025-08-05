@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}Edit Bookmark - SAUS{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark text-center">
+          <h4 class="mb-0">
+            <i class="fas fa-edit me-2"></i>Edit Bookmark
+          </h4>
+        </div>
+        <div class="card-body p-4">
+          {% if form.errors %}
+          <div class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Error!</strong> Please correct the errors below.
+          </div>
+          {% endif %}
+
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label for="{{ form.title.id_for_label }}" class="form-label">
+                <i class="fas fa-heading me-2"></i>Title <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                name="title"
+                id="{{ form.title.id_for_label }}"
+                placeholder="Enter bookmark title"
+                value="{{ form.title.value|default:'' }}"
+                required
+              />
+              {% if form.title.errors %}
+              <div class="text-danger small mt-1">
+                {{ form.title.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.url.id_for_label }}" class="form-label">
+                <i class="fas fa-link me-2"></i>URL <span class="text-danger">*</span>
+              </label>
+              <input
+                type="url"
+                class="form-control"
+                name="url"
+                id="{{ form.url.id_for_label }}"
+                placeholder="https://example.com"
+                value="{{ form.url.value|default:'' }}"
+                required
+              />
+              {% if form.url.errors %}
+              <div class="text-danger small mt-1">
+                {{ form.url.errors.0 }}
+              </div>
+              {% else %}
+              <div class="form-text">
+                The URL you want to bookmark
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.tags.id_for_label }}" class="form-label">
+                <i class="fas fa-tags me-2"></i>Tags
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                name="tags"
+                id="{{ form.tags.id_for_label }}"
+                placeholder="Enter tags separated by commas"
+                value="{{ form.tags.value|default:'' }}"
+              />
+              {% if form.tags.errors %}
+              <div class="text-danger small mt-1">
+                {{ form.tags.errors.0 }}
+              </div>
+              {% else %}
+              <div class="form-text">
+                Optional. Comma-separated tags (e.g. programming, tutorial, reference)
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="d-grid gap-2 mb-3">
+              <button type="submit" class="btn btn-warning btn-lg">
+                <i class="fas fa-save me-2"></i>Update Bookmark
+              </button>
+            </div>
+          </form>
+
+          <div class="text-center">
+            <a href="{% url 'bookmark_list' %}" class="btn btn-outline-secondary me-2">
+              <i class="fas fa-arrow-left me-2"></i>Back to Bookmarks
+            </a>
+            <a href="{% url 'bookmark_delete' bookmark.id %}" class="btn btn-outline-danger">
+              <i class="fas fa-trash me-2"></i>Delete
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bookmark info card -->
+      <div class="card mt-3 border-0">
+        <div class="card-body text-center">
+          <small class="text-muted">
+            <i class="fas fa-info-circle me-1"></i>
+            Last updated: {{ bookmark.modified_at|date:"M d, Y g:i A" }} |
+            <i class="fas fa-mouse-pointer me-1"></i>
+            {{ bookmark.hits }} visit{{ bookmark.hits|pluralize }}
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .card {
+    border-radius: 10px;
+  }
+
+  .card-header {
+    border-radius: 10px 10px 0 0 !important;
+  }
+
+  .btn-warning {
+    border-radius: 8px;
+  }
+
+  .form-control {
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    transition:
+      border-color 0.15s ease-in-out,
+      box-shadow 0.15s ease-in-out;
+  }
+
+  .form-control:focus {
+    border-color: #ffc107;
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+  }
+
+  .alert {
+    border-radius: 8px;
+  }
+
+  .text-danger {
+    font-size: 0.875em;
+  }
+
+  .form-text {
+    font-size: 0.8em;
+  }
+
+  @media (max-width: 576px) {
+    .card {
+      margin: 0 10px;
+    }
+  }
+</style>
+{% endblock %}

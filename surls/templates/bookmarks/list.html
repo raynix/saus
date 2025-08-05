@@ -15,30 +15,35 @@
   <!-- Search Form -->
   <div class="row mb-4">
     <div class="col-md-6">
-      <form method="get" class="d-flex">
+      <div class="position-relative">
         <input
           type="text"
-          name="search"
-          class="form-control me-2"
+          id="searchInput"
+          class="form-control"
           placeholder="Search bookmarks..."
           value="{{ search|default:'' }}"
         />
-        <button type="submit" class="btn btn-outline-secondary">
-          <i class="fas fa-search"></i>
+        <button
+          type="button"
+          id="clearSearch"
+          class="btn btn-link position-absolute end-0 top-50 translate-middle-y"
+          style="display: none"
+        >
+          <i class="fas fa-times text-muted"></i>
         </button>
-        {% if search %}
-        <a href="{% url 'bookmark_list' %}" class="btn btn-outline-danger ms-2">
-          <i class="fas fa-times"></i>
-        </a>
-        {% endif %}
-      </form>
+      </div>
     </div>
   </div>
 
   {% if bookmarks %}
-  <div class="row">
+  <div class="row" id="bookmarkContainer">
     {% for bookmark in bookmarks %}
-    <div class="col-md-6 col-lg-4 mb-4">
+    <div
+      class="col-md-6 col-lg-4 mb-4 bookmark-card"
+      data-title="{{ bookmark.title|lower }}"
+      data-url="{{ bookmark.url|lower }}"
+      data-tags="{% for tag in bookmark.get_tags_list %}{{ tag|lower }} {% endfor %}"
+    >
       <div class="card h-100 shadow-sm">
         <div class="card-body">
           <h5 class="card-title">
@@ -198,5 +203,108 @@
   .btn-group .btn {
     border-radius: 0.25rem;
   }
+
+  .bookmark-card.hidden {
+    display: none !important;
+  }
+
+  #clearSearch {
+    border: none !important;
+    background: none !important;
+    padding: 0.375rem 0.75rem;
+  }
+
+  #clearSearch:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    border-radius: 0.25rem;
+  }
+
+  .search-highlight {
+    background-color: #fff3cd;
+    padding: 0.1rem 0.2rem;
+    border-radius: 0.2rem;
+  }
 </style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("searchInput");
+    const clearButton = document.getElementById("clearSearch");
+    const bookmarkCards = document.querySelectorAll(".bookmark-card");
+    const bookmarkContainer = document.getElementById("bookmarkContainer");
+
+    function performSearch() {
+      const searchTerm = searchInput.value.toLowerCase().trim();
+      let visibleCount = 0;
+
+      // Show/hide clear button
+      clearButton.style.display = searchTerm ? "block" : "none";
+
+      bookmarkCards.forEach((card) => {
+        const title = card.dataset.title || "";
+        const url = card.dataset.url || "";
+        const tags = card.dataset.tags || "";
+
+        const isMatch =
+          title.includes(searchTerm) ||
+          url.includes(searchTerm) ||
+          tags.includes(searchTerm);
+
+        if (isMatch || !searchTerm) {
+          card.classList.remove("hidden");
+          visibleCount++;
+        } else {
+          card.classList.add("hidden");
+        }
+      });
+
+      // Show/hide "no results" message
+      if (bookmarkContainer) {
+        let noResults = document.getElementById("noSearchResults");
+
+        if (visibleCount === 0 && searchTerm) {
+          // Create or show "no results" message
+          if (!noResults) {
+            noResults = document.createElement("div");
+            noResults.id = "noSearchResults";
+            noResults.className = "col-12 text-center py-5";
+            noResults.innerHTML = `
+              <div class="mb-4">
+                <i class="fas fa-search text-muted" style="font-size: 3rem"></i>
+              </div>
+              <h5 class="text-muted">No bookmarks found</h5>
+              <p class="text-muted">
+                No bookmarks match your search for "<span id="searchTermDisplay">${searchTerm}</span>".
+              </p>
+            `;
+            bookmarkContainer.appendChild(noResults);
+          } else {
+            noResults.style.display = "block";
+            document.getElementById("searchTermDisplay").textContent = searchTerm;
+          }
+        } else {
+          // Hide "no results" message
+          if (noResults) {
+            noResults.style.display = "none";
+          }
+        }
+      }
+    }
+
+    // Real-time search as user types
+    searchInput.addEventListener("input", performSearch);
+
+    // Clear search functionality
+    clearButton.addEventListener("click", function () {
+      searchInput.value = "";
+      performSearch();
+      searchInput.focus();
+    });
+
+    // Initial search if there's a value
+    if (searchInput.value) {
+      performSearch();
+    }
+  });
+</script>
 {% endblock %}

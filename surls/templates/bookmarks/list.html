@@ -94,15 +94,31 @@ Bookmarks - SAUS{% endblock %} {% block content %}
     background-color: #d1e7dd;
   }
 
+  .edit-icon {
+    cursor: pointer;
+    padding: 0.25rem;
+    font-size: 1rem;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+    margin-left: auto;
+  }
+
+  .edit-icon:hover {
+    opacity: 1;
+  }
+
   .bookmark-title {
     font-weight: 600;
     color: #212529;
     margin-bottom: 0.25rem;
   }
 
-  .bookmark-tags {
-    font-size: 0.875rem;
-    color: #6c757d;
+  .bookmark-url {
+    font-size: 0.75rem;
+    color: #999;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .tag {
@@ -177,19 +193,18 @@ Bookmarks - SAUS{% endblock %} {% block content %}
     }
 
     function renderBookmarkItem(bookmark, searchTerm) {
-      const tags = bookmark.tags
-        ? bookmark.tags.split(" ").filter((tag) => tag.length > 0)
-        : [];
-      const tagsHtml = tags
-        .map(
-          (tag) => `<span class="tag">${highlightText(tag, searchTerm)}</span>`,
-        )
-        .join("");
+      const truncatedUrl =
+        bookmark.url.length > 60
+          ? bookmark.url.substring(0, 60) + "..."
+          : bookmark.url;
 
       return `
         <div class="dropdown-item" onclick="visitBookmark('${bookmark.visitUrl}')" data-bookmark-id="${bookmark.id}">
           <div class="bookmark-title">${highlightText(bookmark.title, searchTerm)}</div>
-          <div class="bookmark-tags">${tagsHtml}</div>
+          <div class="bookmark-url">
+            <span>${highlightText(truncatedUrl, searchTerm)}</span>
+            <span class="edit-icon" onclick="event.stopPropagation(); editBookmark('${bookmark.editUrl}')" style="display: none;">✏️</span>
+          </div>
         </div>
       `;
     }
@@ -198,6 +213,10 @@ Bookmarks - SAUS{% endblock %} {% block content %}
       const items = dropdown.querySelectorAll(".dropdown-item");
       items.forEach((item, index) => {
         item.classList.toggle("selected", index === selectedIndex);
+        const editIcon = item.querySelector(".edit-icon");
+        if (editIcon) {
+          editIcon.style.display = index === selectedIndex ? "inline" : "none";
+        }
       });
     }
 
@@ -290,6 +309,14 @@ Bookmarks - SAUS{% endblock %} {% block content %}
           dropdown.style.display = "none";
           selectedIndex = -1;
           break;
+
+        case "e":
+        case "E":
+          event.preventDefault();
+          if (selectedIndex >= 0 && selectedIndex < visibleBookmarks.length) {
+            editBookmark(visibleBookmarks[selectedIndex].editUrl);
+          }
+          break;
       }
     });
 
@@ -319,10 +346,27 @@ Bookmarks - SAUS{% endblock %} {% block content %}
     if (searchInput.value) {
       performSearch();
     }
+
+    // Auto-focus the search input on page load
+    searchInput.focus();
+
+    // Global keyboard shortcut: '/' key to focus search box
+    document.addEventListener("keydown", function (event) {
+      // Only trigger if search box is not already focused and '/' is pressed
+      if (event.key === "/" && document.activeElement !== searchInput) {
+        event.preventDefault();
+        searchInput.focus();
+      }
+    });
   });
 
   // Function to visit bookmark
   function visitBookmark(url) {
+    window.location.href = url;
+  }
+
+  // Function to edit bookmark
+  function editBookmark(url) {
     window.location.href = url;
   }
 </script>
